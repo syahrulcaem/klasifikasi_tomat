@@ -124,11 +124,13 @@ class ClassifierService {
       }
     }
 
+    // ✅ Jika confidence rendah, anggap "bukan tomat"
+    String predictedLabel =
+        maxConfidence < 0.8 ? 'bukan tomat' : labels[maxIndex];
+
     return {
-      'label': labels[maxIndex],
+      'label': predictedLabel,
       'confidence': maxConfidence,
-      'index': maxIndex,
-      'all_predictions': Map.fromIterables(labels, predictions),
     };
   }
 
