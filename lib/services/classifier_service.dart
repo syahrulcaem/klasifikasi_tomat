@@ -15,12 +15,8 @@ class ClassifierService {
   Future<void> loadModel() async {
     try {
       // Load model dari assets
-      final modelData =
-          await rootBundle.load('assets/models/model_tomat.tflite');
-      final modelBytes = modelData.buffer.asUint8List();
-
-      // Inisialisasi interpreter
-      _interpreter = Interpreter.fromBuffer(modelBytes);
+      _interpreter =
+          await Interpreter.fromAsset('assets/model/model_tomat.tflite');
 
       print('Model loaded successfully');
       print('Input shape: ${_interpreter!.getInputTensor(0).shape}');
@@ -88,7 +84,7 @@ class ClassifierService {
             final pixel = resizedImage.getPixel(x, y);
             double value;
 
-            // Extract RGB values menggunakan API baru
+            // Extract RGB values menggunakan pixel properties
             switch (c) {
               case 0:
                 value = pixel.r.toDouble(); // Red channel
@@ -154,8 +150,8 @@ class ClassifierService {
               'confidence': entry.value,
             })
         .toList()
-      ..sort((a, b) =>
-          (b['confidence']! as double).compareTo(a['confidence']! as double));
+      ..sort((a, b) => ((b['confidence'] ?? 0.0) as double)
+          .compareTo((a['confidence'] ?? 0.0) as double));
   }
 
   /// Membersihkan resource
