@@ -51,6 +51,23 @@ android {
     buildTypes {
         release {
             signingConfig = signingConfigs.debug
+            minifyEnabled true
+            shrinkResources true
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+            
+            // ✅ Tambahan optimasi
+            zipAlignEnabled true
+            crunchPngs true
+            
+            // Untuk production, buat signing config terpisah
+            // signingConfig signingConfigs.release
+        }
+        
+        debug {
+            // ✅ Untuk development
+            minifyEnabled false
+            shrinkResources false
+            debuggable true
         }
     }
 }
