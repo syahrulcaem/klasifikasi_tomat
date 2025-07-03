@@ -9,260 +9,269 @@ class ResultCard extends StatelessWidget {
     Key? key,
     required this.label,
     required this.confidence,
-    this.isLoading = false,
+    required this.isLoading,
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final isDark = theme.brightness == Brightness.dark;
+    if (isLoading) {
+      return _buildLoadingCard();
+    }
 
-    return Card(
-      elevation: isDark ? 4 : 8,
-      shadowColor: isDark ? Colors.black54 : Colors.black26,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(16),
-      ),
-      color: isDark ? Colors.grey[850] : Colors.white,
-      child: Container(
-        width: double.infinity,
-        padding: const EdgeInsets.all(24),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            // Header
-            Row(
-              children: [
-                Icon(
-                  Icons.analytics_outlined,
-                  color: isDark ? Colors.green[400] : Colors.green[600],
-                  size: 28,
-                ),
-                const SizedBox(width: 12),
-                Text(
-                  'Hasil Klasifikasi',
-                  style: TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
-                    color: isDark ? Colors.white : Colors.black87,
-                  ),
-                ),
-              ],
-            ),
+    return _buildResultCard();
+  }
 
-            const SizedBox(height: 24),
-
-            // Content
-            if (isLoading)
-              _buildLoadingContent(isDark)
-            else
-              _buildResultContent(isDark),
+  Widget _buildLoadingCard() {
+    return Container(
+      padding: const EdgeInsets.all(24),
+      decoration: BoxDecoration(
+        gradient: const LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [
+            Color(0xFF64B5F6),
+            Color(0xFF42A5F5),
           ],
         ),
+        borderRadius: BorderRadius.circular(20),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.blue.withOpacity(0.3),
+            blurRadius: 15,
+            offset: const Offset(0, 8),
+          ),
+        ],
       ),
-    );
-  }
-
-  Widget _buildLoadingContent(bool isDark) {
-    return Column(
-      children: [
-        CircularProgressIndicator(
-          valueColor: AlwaysStoppedAnimation<Color>(
-            isDark ? Colors.green[400]! : Colors.green[600]!,
+      child: Column(
+        children: [
+          const CircularProgressIndicator(
+            valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+            strokeWidth: 3,
           ),
-          strokeWidth: 3,
-        ),
-        const SizedBox(height: 16),
-        Text(
-          'Memproses gambar...',
-          style: TextStyle(
-            fontSize: 16,
-            color: isDark ? Colors.grey[400] : Colors.grey[600],
-            fontWeight: FontWeight.w500,
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildResultContent(bool isDark) {
-    return Column(
-      children: [
-        // Label Container
-        Container(
-          padding: const EdgeInsets.symmetric(
-            horizontal: 24,
-            vertical: 16,
-          ),
-          decoration: BoxDecoration(
-            color:
-                isDark ? Colors.green[900]?.withOpacity(0.3) : Colors.green[50],
-            borderRadius: BorderRadius.circular(30),
-            border: Border.all(
-              color: isDark ? Colors.green[400]! : Colors.green[200]!,
-              width: 1.5,
+          const SizedBox(height: 16),
+          const Text(
+            'Menganalisis Gambar...',
+            style: TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+              color: Colors.white,
             ),
           ),
-          child: Text(
-            label,
+          const SizedBox(height: 8),
+          Text(
+            'AI sedang memproses gambar tomat Anda',
             style: TextStyle(
-              fontSize: 20,
-              fontWeight: FontWeight.bold,
-              color: isDark ? Colors.green[400] : Colors.green[800],
+              fontSize: 14,
+              color: Colors.white.withOpacity(0.9),
             ),
             textAlign: TextAlign.center,
           ),
-        ),
-
-        const SizedBox(height: 20),
-
-        // Confidence Row
-        Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(
-              Icons.verified_outlined,
-              color: isDark ? Colors.blue[400] : Colors.blue[600],
-              size: 22,
-            ),
-            const SizedBox(width: 8),
-            Text(
-              'Kepercayaan:',
-              style: TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.w500,
-                color: isDark ? Colors.grey[300] : Colors.grey[700],
-              ),
-            ),
-            const SizedBox(width: 8),
-            Text(
-              '${(confidence * 100).toStringAsFixed(1)}%',
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-                color: isDark ? Colors.blue[400] : Colors.blue[700],
-              ),
-            ),
-          ],
-        ),
-
-        const SizedBox(height: 16),
-
-        // Confidence Bar
-        _buildConfidenceBar(isDark),
-      ],
+        ],
+      ),
     );
   }
 
-  Widget _buildConfidenceBar(bool isDark) {
-    return Column(
-      children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Text(
-              '0%',
-              style: TextStyle(
-                fontSize: 12,
-                color: isDark ? Colors.grey[500] : Colors.grey[600],
-              ),
-            ),
-            Text(
-              '100%',
-              style: TextStyle(
-                fontSize: 12,
-                color: isDark ? Colors.grey[500] : Colors.grey[600],
-              ),
-            ),
-          ],
+  Widget _buildResultCard() {
+    final resultInfo = _getResultInfo(label);
+
+    return Container(
+      padding: const EdgeInsets.all(24),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: resultInfo['colors'],
         ),
-        const SizedBox(height: 8),
-        Container(
-          height: 8,
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(4),
-            color: isDark ? Colors.grey[700] : Colors.grey[300],
+        borderRadius: BorderRadius.circular(20),
+        boxShadow: [
+          BoxShadow(
+            color: resultInfo['colors'][0].withOpacity(0.4),
+            blurRadius: 15,
+            offset: const Offset(0, 8),
           ),
-          child: FractionallySizedBox(
-            alignment: Alignment.centerLeft,
-            widthFactor: confidence.clamp(0.0, 1.0),
-            child: Container(
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(4),
-                gradient: LinearGradient(
-                  colors: [
-                    isDark ? Colors.green[400]! : Colors.green[500]!,
-                    isDark ? Colors.blue[400]! : Colors.blue[500]!,
-                  ],
+        ],
+      ),
+      child: Column(
+        children: [
+          // Icon dan Status
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: Colors.white.withOpacity(0.2),
+                  borderRadius: BorderRadius.circular(50),
+                ),
+                child: Icon(
+                  resultInfo['icon'],
+                  size: 32,
+                  color: Colors.white,
                 ),
               ),
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-}
-
-// Alternative Compact Version
-class CompactResultCard extends StatelessWidget {
-  final String label;
-  final double confidence;
-
-  const CompactResultCard({
-    Key? key,
-    required this.label,
-    required this.confidence,
-  }) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final isDark = theme.brightness == Brightness.dark;
-
-    return Card(
-      elevation: isDark ? 2 : 4,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
-      ),
-      color: isDark ? Colors.grey[850] : Colors.white,
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Row(
-          children: [
-            Icon(
-              Icons.check_circle_outline,
-              color: isDark ? Colors.green[400] : Colors.green[600],
-              size: 24,
-            ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Column(
+              const SizedBox(width: 16),
+              Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisSize: MainAxisSize.min,
                 children: [
-                  Text(
-                    label,
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                      color: isDark ? Colors.white : Colors.black87,
-                    ),
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    '${(confidence * 100).toStringAsFixed(1)}% kepercayaan',
+                  const Text(
+                    'Hasil Klasifikasi',
                     style: TextStyle(
                       fontSize: 14,
-                      color: isDark ? Colors.grey[400] : Colors.grey[600],
+                      color: Colors.white,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                  Text(
+                    resultInfo['displayName'],
+                    style: const TextStyle(
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
                     ),
                   ),
                 ],
               ),
+            ],
+          ),
+
+          const SizedBox(height: 20),
+
+          // Confidence Score
+          Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: Colors.white.withOpacity(0.15),
+              borderRadius: BorderRadius.circular(15),
             ),
-          ],
-        ),
+            child: Column(
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    const Text(
+                      'Tingkat Kepercayaan',
+                      style: TextStyle(
+                        fontSize: 14,
+                        color: Colors.white,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                    Text(
+                      '${(confidence * 100).toStringAsFixed(1)}%',
+                      style: const TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 8),
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(10),
+                  child: LinearProgressIndicator(
+                    value: confidence,
+                    minHeight: 8,
+                    backgroundColor: Colors.white.withOpacity(0.3),
+                    valueColor:
+                        const AlwaysStoppedAnimation<Color>(Colors.white),
+                  ),
+                ),
+              ],
+            ),
+          ),
+
+          const SizedBox(height: 16),
+
+          // Status Message
+          Container(
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: Colors.white.withOpacity(0.1),
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(
+                color: Colors.white.withOpacity(0.3),
+                width: 1,
+              ),
+            ),
+            child: Row(
+              children: [
+                Icon(
+                  resultInfo['statusIcon'],
+                  color: Colors.white,
+                  size: 20,
+                ),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Text(
+                    resultInfo['statusMessage'],
+                    style: TextStyle(
+                      fontSize: 13,
+                      color: Colors.white.withOpacity(0.95),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
       ),
     );
+  }
+
+  Map<String, dynamic> _getResultInfo(String classification) {
+    switch (classification.toLowerCase()) {
+      case 'matang':
+        return {
+          'displayName': 'Tomat Matang 🍅',
+          'colors': [const Color(0xFFD32F2F), const Color(0xFFE53935)],
+          'icon': Icons.check_circle,
+          'statusIcon': Icons.thumb_up,
+          'statusMessage':
+              'Sempurna! Tomat siap untuk dikonsumsi langsung atau dijadikan salad.',
+        };
+
+      case 'mentah':
+        return {
+          'displayName': 'Tomat Mentah 🟢',
+          'colors': [const Color(0xFF388E3C), const Color(0xFF43A047)],
+          'icon': Icons.schedule,
+          'statusIcon': Icons.restaurant,
+          'statusMessage':
+              'Cocok untuk dimasak! Ideal untuk tumisan, sup, atau sauce.',
+        };
+
+      case 'belum matang':
+      case 'belum_matang':
+        return {
+          'displayName': 'Belum Matang 🟡',
+          'colors': [const Color(0xFFF57C00), const Color(0xFFFF9800)],
+          'icon': Icons.hourglass_empty,
+          'statusIcon': Icons.access_time,
+          'statusMessage':
+              'Simpan di suhu ruang beberapa hari untuk mempercepat pematangan.',
+        };
+
+      case 'bukan tomat':
+      case 'bukan_tomat':
+        return {
+          'displayName': 'Bukan Tomat ❌',
+          'colors': [const Color(0xFF757575), const Color(0xFF9E9E9E)],
+          'icon': Icons.error_outline,
+          'statusIcon': Icons.info,
+          'statusMessage':
+              'Objek yang terdeteksi bukan tomat. Coba ambil foto tomat yang jelas.',
+        };
+
+      default:
+        return {
+          'displayName': 'Tidak Dikenal',
+          'colors': [const Color(0xFF757575), const Color(0xFF9E9E9E)],
+          'icon': Icons.help_outline,
+          'statusIcon': Icons.warning,
+          'statusMessage':
+              'Hasil tidak dapat diidentifikasi. Silakan coba lagi.',
+        };
+    }
   }
 }
