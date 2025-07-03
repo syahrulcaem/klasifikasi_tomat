@@ -80,6 +80,11 @@ class ClassifierService {
 
   // ✅ Update untuk 4 kelas
   Map<String, dynamic> _processOutput(List<double> predictions) {
+    print('Raw predictions:');
+    for (int i = 0; i < predictions.length; i++) {
+      print('${labels[i]}: ${predictions[i].toStringAsFixed(4)}');
+    }
+
     int maxIndex = 0;
     double maxConfidence = predictions[0];
 
@@ -90,8 +95,27 @@ class ClassifierService {
       }
     }
 
+    // ✅ Tambahkan logic untuk ambiguitas
+    String finalLabel = labels[maxIndex];
+
+    // Jika confidence rendah, berikan peringatan
+    if (maxConfidence < 0.7) {
+      finalLabel = '${labels[maxIndex]} (tidak yakin)';
+    }
+
+    // ✅ Cek jika prediksi antara belum_matang vs bukan_tomat sangat dekat
+    double belumMatang = predictions[0];
+    double bukanTomat = predictions[1];
+
+    if ((maxIndex == 0 || maxIndex == 1) &&
+        (belumMatang - bukanTomat).abs() < 0.1) {
+      finalLabel = 'Sulit dibedakan: ${labels[maxIndex]}';
+    }
+
+    print('Final result: $finalLabel (confidence: ${maxConfidence.toStringAsFixed(4)})');
+
     return {
-      'label': labels[maxIndex],
+      'label': finalLabel,
       'confidence': maxConfidence,
       'all_predictions': {
         'belum_matang': predictions[0],
@@ -114,6 +138,24 @@ class ClassifierService {
         .toList()
       ..sort((a, b) =>
           (b['confidence'] as double).compareTo(a['confidence'] as double));
+  }
+
+  // Tampilkan top 2 predictions untuk user
+  Future<String> getPredictionWithAlternative(File imageFile) async {
+    final result = await predict(imageFile);
+    final allPreds = result['all_predictions'] as Map<String, double>;
+
+    final sorted = allPreds.entries.toList()
+      ..sort((a, b) => b.value.compareTo(a.value));
+
+    final first = sorted[0];
+    final second = sorted[1];
+
+    if ((first.value - second.value) < 0.2) {
+      return '${first.key} (${(first.value * 100).toStringAsFixed(1)}%) atau mungkin ${second.key} (${(second.value * 100).toStringAsFixed(1)}%)';
+    }
+
+    return '${first.key} (${(first.value * 100).toStringAsFixed(1)}%)';
   }
 
   void dispose() {
