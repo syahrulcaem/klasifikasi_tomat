@@ -1,0 +1,2 @@
+D:/ai tomat/klasifikasi_tomat/android/app/.cxx/RelWithDebInfo/3f1r1e3c/x86/CMakeFiles/edit_cache.dir
+D:/ai tomat/klasifikasi_tomat/android/app/.cxx/RelWithDebInfo/3f1r1e3c/x86/CMakeFiles/rebuild_cache.dir

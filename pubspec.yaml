@@ -1,4 +1,4 @@
-name: klasifikasi_tomat
+name: TomatIQ
 description: A new Flutter project.
 
 version: 1.0.0+1
@@ -19,6 +19,12 @@ dev_dependencies:
   flutter_test:
     sdk: flutter
   flutter_lints: ^3.0.0
+  flutter_launcher_icons: ^0.13.1
+
+flutter_icons:
+  android: true
+  ios: true
+  image_path: "assets/images/logo.png"
 
 flutter:
   uses-material-design: true
@@ -26,3 +32,4 @@ flutter:
   assets:
     - assets/models/model_tomat.tflite
     - assets/images/contoh.jpg
+    - assets/images/tomatiq.png
